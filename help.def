@@ -1,0 +1,65 @@
+NestJS {
+    npm i -g @nestjs/cli
+    npx nest new api
+    RUN -> npm run start:dev
+    npm i --save class-validator class-transformer
+    npm install --save @nestjs/mapped-types
+
+    https://docs.nestjs.com/pipes#built-in-pipes
+    
+    Security {
+        npm install --save @nestjs/passport passport passport-local
+        npm install --save-dev @types/passport-local
+        npx nest generate resource security/auth --no-spec
+
+        JWT {
+            npm install --save @nestjs/jwt passport-jwt
+            npm install --save-dev @types/passport-jwt
+        }
+    }
+
+    Strutura {
+        Module: importa os arquivos principais;
+        Controllers: rotas da api;
+        Services: conexão e atividades com o banco;
+        validation.pipe: Configuração de validação;
+        Dto: regras de validação;
+
+        Guard: Chamar estragegias antes das rotas
+        Stretagies: implementação authenticação
+        base: 
+        Common: 
+        Decorator: Cria @
+        Config: secrets, evs
+        Entities: 
+        Shared: Entre base e common
+        Providers: Services global
+        Envs: Funções para chamar variáveis da ENV
+    }
+}
+
+Prisma (ORM) {
+    npm install prisma --save-dev
+    npx prisma init --datasource-provider postgresql
+    npx prisma db pull
+    npm install @prisma/client@4.12.0
+
+    npx prisma generate
+
+    npx nest add nestjs-prisma
+}
+
+JWT {
+    Acess, Refresh
+    npm add passport-jwt
+    npm add -D @types/passport-jwt
+}
+
+BCrypt {
+    npm i bcrypt
+    npm i -D @types/bcrypt
+}
+
+Pnpm {
+    npm i -g pnpm
+}
