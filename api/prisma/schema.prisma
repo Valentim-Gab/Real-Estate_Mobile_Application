@@ -8,9 +8,28 @@ datasource db {
 }
 
 model users {
-  id       Int      @id @default(autoincrement())
-  name     String   @db.VarChar(100)
-  email    String   @unique @db.VarChar(250)
-  password String   @db.VarChar(200)
-  role     String[] @db.VarChar(10)
+  id       Int        @id @default(autoincrement())
+  name     String     @db.VarChar(100)
+  email    String     @unique @db.VarChar(250)
+  password String     @db.VarChar(200)
+  role     String[]   @db.VarChar(10)
+  property property[]
+}
+
+model property {
+  id                   Int     @id @default(autoincrement())
+  identifier_name      String? @db.VarChar(50)
+  owner_name           String? @db.VarChar(100)
+  number_property      Int?
+  road                 String? @db.VarChar(50)
+  neighborhood         String? @db.VarChar(50)
+  city                 String? @db.VarChar(50)
+  state                String? @db.VarChar(50)
+  country              String? @db.VarChar(50)
+  zip_code             String? @db.VarChar(10)
+  description          String?
+  type_use             String? @db.VarChar(15)
+  type_marketing       String? @db.VarChar(15)
+  id_real_estate_agent Int?
+  users                users?  @relation(fields: [id_real_estate_agent], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
