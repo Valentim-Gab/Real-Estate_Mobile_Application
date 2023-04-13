@@ -6,21 +6,23 @@ import {
   Patch,
   Param,
   Delete,
-  Request,
-  Header,
-  Headers,
+  UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common'
 import { PropertyService } from './property.service'
 import { CreatePropertyDto } from './dto/create-property.dto'
 import { UpdatePropertyDto } from './dto/update-property.dto'
-import { IncomingHttpHeaders } from 'http2'
+import { JwtAuthGuard } from 'src/security/guards/jwt-auth.guard'
+import { ReqUser } from 'src/decorators/req-user.decorator'
+import { users } from '@prisma/client'
+import { ValidationPipe } from 'src/pipes/validation.pipe'
 
 @Controller('property')
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
   @Post()
-  create(@Body() createPropertyDto: CreatePropertyDto) {
+  create(@Body(new ValidationPipe()) createPropertyDto: CreatePropertyDto) {
     return this.propertyService.create(createPropertyDto)
   }
 
@@ -29,27 +31,27 @@ export class PropertyController {
     return this.propertyService.findAll()
   }
 
-  @Get('@me')
-  findAllMe(@Headers() headers: IncomingHttpHeaders) {
-    const [type, token] = headers.authorization?.split(' ') ?? []
-    console.log(type === 'Bearer' ? token : undefined)
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.propertyService.findOne(id)
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.propertyService.findOne(+id)
+  @UseGuards(JwtAuthGuard)
+  @Get('@me')
+  findAllMe(@ReqUser() user: users) {
+    return this.propertyService.findAllMe(user.id)
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
-    @Body() updatePropertyDto: UpdatePropertyDto,
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe()) updatePropertyDto: UpdatePropertyDto,
   ) {
-    return this.propertyService.update(+id, updatePropertyDto)
+    return this.propertyService.update(id, updatePropertyDto)
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.propertyService.remove(+id)
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.propertyService.remove(id)
   }
 }

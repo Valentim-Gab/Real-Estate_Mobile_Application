@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { users } from '@prisma/client'
 import { PrismaService } from 'nestjs-prisma'
 import { CreatePropertyDto } from './dto/create-property.dto'
 import { UpdatePropertyDto } from './dto/update-property.dto'
@@ -17,6 +18,12 @@ export class PropertyService {
 
   findOne(id: number) {
     return this.prisma.property.findFirst({ where: { id } })
+  }
+
+  findAllMe(idAgent: number) {
+    return this.prisma.property.findMany({
+      where: { id_real_estate_agent: idAgent },
+    })
   }
 
   update(id: number, updatePropertyDto: UpdatePropertyDto) {
