@@ -1,15 +1,20 @@
 import { users } from '@prisma/client'
-import { IsNotEmpty, IsNumber, IsObject, IsString } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsInt, IsNotEmpty, IsNumber, IsObject, IsString, ValidateNested } from 'class-validator'
+import { CreateUserDto } from 'src/routers/user/dto/create-user.dto'
 
 export class CreatePropertyDto {
   @IsString()
   identifierName: string
 
+  @IsNumber()
+  value: number
+
   @IsString()
   ownerName: string
 
-  @IsNumber()
-  numberProperty: string
+  @IsInt()
+  numberProperty: number
 
   @IsString()
   road: string
@@ -38,7 +43,10 @@ export class CreatePropertyDto {
   @IsString()
   typeMarketing: string
 
+  @IsInt()
+  idRealEstateAgent: number
+
   @IsNotEmpty()
   @IsObject()
-  user: users
+  user: users;
 }

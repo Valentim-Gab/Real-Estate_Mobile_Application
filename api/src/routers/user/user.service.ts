@@ -12,6 +12,7 @@ export class UserService {
     createUserDto.password = await this.bcrypt.encryptPassword(
       createUserDto.password,
     )
+    createUserDto.role = ['user'];
     return this.prisma.users.create({ data: createUserDto })
   }
 

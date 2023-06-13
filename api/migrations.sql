@@ -11,6 +11,7 @@ CREATE TABLE users (
 CREATE TABLE property (
 	id SERIAL PRIMARY KEY,
 	identifier_name VARCHAR(50),
+	value MONEY,
 	owner_name VARCHAR(100),
 	number_property INTEGER,
 	road VARCHAR(50),
