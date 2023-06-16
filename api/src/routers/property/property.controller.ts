@@ -31,15 +31,15 @@ export class PropertyController {
     return this.propertyService.findAll()
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.propertyService.findOne(id)
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('@me')
   findAllMe(@ReqUser() user: users) {
     return this.propertyService.findAllMe(user.id)
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.propertyService.findOne(id)
   }
 
   @Patch(':id')

@@ -17,6 +17,8 @@ import { RolesGuard } from 'src/security/guards/roles.guard'
 import { Roles } from 'src/decorators/roles.decorator'
 import { Role } from 'src/enums/role.enum'
 import { ValidationPipe } from 'src/pipes/validation.pipe'
+import { users } from '@prisma/client'
+import { ReqUser } from 'src/decorators/req-user.decorator'
 
 @Controller('user')
 export class UserController {
@@ -28,19 +30,38 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin)
   @Get()
   findAll() {
     return this.userService.findAll()
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.User)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Get('@me')
+  findOneMe(@ReqUser() user: users) {
+    return this.userService.findOne(user.id)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findOne(id)
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Patch('@me')
+  updateMe(
+    @ReqUser() user: users,
+    @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
+  ) {
+    return this.userService.update(user.id, updateUserDto)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -49,8 +70,17 @@ export class UserController {
     return this.userService.update(id, updateUserDto)
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Delete('@me')
+  deleteMe(@ReqUser() user: users,) {
+    return this.userService.delete(user.id)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.remove(id)
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.delete(id)
   }
 }

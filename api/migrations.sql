@@ -29,3 +29,9 @@ CREATE TABLE property (
 
 INSERT INTO users VALUES 
 (default, 'Admin', 'admin@email.vale', '123', ARRAY['admin']);
+
+INSERT INTO users VALUES (
+	default, 'testeDelete', 'teste@email.vale',
+	'$2b$10$TATuYh32yZ3m628KIMHL5eg0pT99rLyvxmQGlF7iEnSLJUgWy3Gwi',
+	ARRAY['admin']
+);	
