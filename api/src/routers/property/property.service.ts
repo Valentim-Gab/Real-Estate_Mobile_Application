@@ -40,9 +40,11 @@ export class PropertyService {
   }
 
   update(id: number, updatePropertyDto: UpdatePropertyDto) {
+    const { user, ...propertyData } = updatePropertyDto
+
     return this.prisma.property.update({
       where: { id },
-      data: updatePropertyDto,
+      data: propertyData,
     })
   }
 

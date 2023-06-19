@@ -1,7 +1,5 @@
 import { users } from '@prisma/client'
-import { Type } from 'class-transformer'
-import { IsInt, IsNotEmpty, IsNumber, IsObject, IsString, ValidateNested } from 'class-validator'
-import { CreateUserDto } from 'src/routers/user/dto/create-user.dto'
+import { IsInt, IsNotEmpty, IsNumber, IsObject, IsString } from 'class-validator'
 
 export class CreatePropertyDto {
   @IsString()
