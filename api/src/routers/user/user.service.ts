@@ -4,7 +4,8 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { PrismaService } from 'nestjs-prisma'
 import { BCryptService } from 'src/security/private/bcrypt.service'
 import { Prisma, users } from '@prisma/client'
-import { ErrorCodes } from 'src/constants/ErrorCode'
+import { ErrorConstants } from 'src/constants/ErrorConstants'
+
 @Injectable()
 export class UserService {
   private selectColumns = {
@@ -68,7 +69,7 @@ export class UserService {
         return await operation()
       })
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === ErrorCodes.UNIQUE_VIOLATED) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === ErrorConstants.UNIQUE_VIOLATED) {
         let uniqueColumn = error.meta.target[0]
         throw new BadRequestException(`Campo ${uniqueColumn} em uso!`)
       }
