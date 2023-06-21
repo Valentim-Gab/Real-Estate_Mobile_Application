@@ -51,7 +51,7 @@ export class PropertyController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.propertyService.remove(id)
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.propertyService.delete(id)
   }
 }

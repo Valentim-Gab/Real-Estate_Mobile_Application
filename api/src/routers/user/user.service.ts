@@ -27,9 +27,11 @@ export class UserService {
   }
 
   async findAll() {
-    return await this.prisma.users.findMany({
-      select: this.selectColumns
-    });
+    return this.performUserOperation('receber', async () => {
+      return await this.prisma.users.findMany({
+        select: this.selectColumns
+      });
+    })
   }
 
   async findOne(id: number) {
