@@ -6,6 +6,7 @@ CREATE TABLE users (
 	email VARCHAR(250) not null unique,
 	password VARCHAR(200) not null,
 	role varchar(10)[]
+	img VARCHAR(250)
 );
 
 CREATE TABLE property (

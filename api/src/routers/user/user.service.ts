@@ -5,6 +5,8 @@ import { PrismaService } from 'nestjs-prisma'
 import { BCryptService } from 'src/security/private/bcrypt.service'
 import { Prisma, users } from '@prisma/client'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
+import { ImageUtil } from 'src/utils/image.util'
+import { Response } from 'express'
 
 @Injectable()
 export class UserService {
@@ -13,9 +15,10 @@ export class UserService {
     name: true,
     email: true,
     role: true,
+    img: true
   }
 
-  constructor(private prisma: PrismaService, private bcrypt: BCryptService) {}
+  constructor(private prisma: PrismaService, private bcrypt: BCryptService, private imageUtil: ImageUtil) {}
 
   async create(createUserDto: CreateUserDto) {
     return this.performUserOperation('cadastrar', async () => {
@@ -40,6 +43,18 @@ export class UserService {
     })
   }
 
+  async findImg(user: users, res: Response) {
+    user = await this.findOne(user.id)
+    
+    try {
+      const bytes =  await this.imageUtil.get(user.img, 'user')
+      res.setHeader('Content-Type', 'image/*')
+      res.send(bytes)
+    } catch (error) {
+      throw new BadRequestException(`Foto não encontrada`)
+    }
+  }
+
   findByEmail(email: string) {
     return this.performUserOperation('receber', async () => {
       return this.prisma.users.findFirst({ where: { email } })
@@ -61,6 +76,20 @@ export class UserService {
         select: {
           id: true,
         }
+      })
+    })
+  }
+  
+  async updateImg(image: File, user: users) {
+    const { id } = user;
+    const filename = await this.imageUtil.save(image, id, 'user');
+    const userUpdate = { 'img': filename }
+
+    return this.performUserOperation('atualizar', async () => {
+      return this.prisma.users.update({
+        where: { id: user.id },
+        data: userUpdate,
+        select: this.selectColumns
       })
     })
   }
