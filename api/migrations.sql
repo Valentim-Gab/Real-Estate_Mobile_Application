@@ -24,6 +24,7 @@ CREATE TABLE property (
 	description TEXT,
 	type_use VARCHAR(15),
 	type_marketing VARCHAR(15),
+	img VARCHAR(250),
 	id_real_estate_agent INTEGER,
 	FOREIGN KEY (id_real_estate_agent) REFERENCES users (id) ON DELETE CASCADE
 );

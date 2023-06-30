@@ -44,6 +44,9 @@ export class CreatePropertyDto {
   @IsInt()
   idRealEstateAgent: number
 
+  @IsString()
+  img: string
+
   @IsNotEmpty()
   @IsObject()
   user: users;

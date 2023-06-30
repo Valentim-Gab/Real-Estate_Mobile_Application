@@ -8,6 +8,11 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
+  Res,
+  ParseFilePipe,
+  Req,
 } from '@nestjs/common'
 import { PropertyService } from './property.service'
 import { CreatePropertyDto } from './dto/create-property.dto'
@@ -16,14 +21,23 @@ import { JwtAuthGuard } from 'src/security/guards/jwt-auth.guard'
 import { ReqUser } from 'src/decorators/req-user.decorator'
 import { users } from '@prisma/client'
 import { ValidationPipe } from 'src/pipes/validation.pipe'
+import { Role } from 'src/enums/role.enum'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { Roles } from 'src/decorators/roles.decorator'
+import { RolesGuard } from 'src/security/guards/roles.guard'
+import { Response, Request } from 'express'
+import { File } from 'multer';
 
 @Controller('property')
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
   @Post()
-  create(@Body(new ValidationPipe()) createPropertyDto: CreatePropertyDto) {
-    return this.propertyService.create(createPropertyDto)
+  @UseInterceptors(FileInterceptor('image'))
+  create(@Req() request: Request, @UploadedFile(ParseFilePipe) image: File) {
+    const createPropertyDto: CreatePropertyDto = JSON.parse(request.body['property'])
+
+    return this.propertyService.create(createPropertyDto, image)
   }
 
   @Get()
@@ -43,15 +57,26 @@ export class PropertyController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('image'))
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ValidationPipe()) updatePropertyDto: UpdatePropertyDto,
+    @Req() request: Request,
+    @UploadedFile(ParseFilePipe) image: File
   ) {
-    return this.propertyService.update(id, updatePropertyDto)
+    const updatePropertyDto: UpdatePropertyDto = JSON.parse(request.body['property'])
+
+    return this.propertyService.update(id, updatePropertyDto, image)
   }
 
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.propertyService.delete(id)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Get('main_img/:img')
+  downloadImage(@Param('img') img: string, @Res() res: Response) {
+    return this.propertyService.findImg(img, res)
   }
 }

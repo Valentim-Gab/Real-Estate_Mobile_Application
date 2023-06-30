@@ -1,18 +1,23 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { Prisma, property, users } from '@prisma/client'
+import { Prisma, property } from '@prisma/client'
 import { PrismaService } from 'nestjs-prisma'
 import { CreatePropertyDto } from './dto/create-property.dto'
 import { UpdatePropertyDto } from './dto/update-property.dto'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
+import { ImageUtil } from 'src/utils/image.util'
+import { Response } from 'express'
 
 @Injectable()
 export class PropertyService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private imageUtil: ImageUtil) {}
 
-  create(createPropertyDto: CreatePropertyDto) {
-    return this.performUserOperation('cadastrar', async () => {
+  async create(createPropertyDto: CreatePropertyDto, image: File) {
+    let filename: string
+
+    const newProperty = await this.performUserOperation('cadastrar', async () => {
       if (createPropertyDto.user) {
         const { user, ...propertyData } = createPropertyDto
+        propertyData.img = filename
   
         return this.prisma.property.create({
           data: { ...propertyData, users: { connect: { id: user.id } } },
@@ -25,6 +30,16 @@ export class PropertyService {
         })
       }
     });
+
+    if (newProperty.id && image) {
+      filename = await this.saveImg(image, newProperty.id)
+
+      if (filename) {
+        return this.updateImg(newProperty.id, filename)
+      }
+    }
+
+    return null
   }
 
   findAll() {
@@ -48,15 +63,41 @@ export class PropertyService {
     })
   }
 
-  update(id: number, updatePropertyDto: UpdatePropertyDto) {
-    return this.performUserOperation('receber', async () => {
-      const { user, ...propertyData } = updatePropertyDto
+  async findImg(img: string, res: Response) {
+    try {
+      const bytes =  await this.imageUtil.get(img, 'property')
+      res.setHeader('Content-Type', 'image/*')
+      res.send(bytes)
+    } catch (error) {
+      throw new BadRequestException(`Foto não encontrada`)
+    }
+  }
 
+  async update(id: number, updatePropertyDto: UpdatePropertyDto, image: File) {
+    const { user, ...propertyData } = updatePropertyDto
+
+    if (image)
+      propertyData.img = await this.saveImg(image, id)
+
+    return this.performUserOperation('atualizar', async () => {
       return this.prisma.property.update({
         where: { id },
         data: propertyData,
       })
     })
+  }
+
+  async updateImg(id: number, filename: string) {
+    const propertyData: UpdatePropertyDto = {
+      img: filename
+    };
+  
+    return this.performUserOperation('receber', async () => {
+      return this.prisma.property.update({
+        where: { id },
+        data: propertyData
+      });
+    });
   }
 
   delete(id: number) {
@@ -67,6 +108,12 @@ export class PropertyService {
         }
       })
     })  
+  }
+
+  async saveImg(image: File, id: number) {
+    const filename = await this.imageUtil.save(image, id, 'property')
+
+    return filename
   }
 
   private async performUserOperation(action: string, operation: () => Promise<any>) {
