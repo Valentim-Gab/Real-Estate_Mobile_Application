@@ -7,6 +7,10 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseIntPipe,
+  UploadedFile,
+  UseInterceptors,
+  Res,
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -15,13 +19,19 @@ import { JwtAuthGuard } from 'src/security/guards/jwt-auth.guard'
 import { RolesGuard } from 'src/security/guards/roles.guard'
 import { Roles } from 'src/decorators/roles.decorator'
 import { Role } from 'src/enums/role.enum'
+import { ValidationPipe } from 'src/pipes/validation.pipe'
+import { users } from '@prisma/client'
+import { ReqUser } from 'src/decorators/req-user.decorator'
+import { FileInterceptor } from '@nestjs/platform-express';
+import { File } from 'multer';
+import { Response } from 'express'
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto)
   }
 
@@ -33,19 +43,65 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
+  @Roles(Role.User, Role.Admin)
+  @Get('@me')
+  findOneMe(@ReqUser() user: users) {
+    return this.userService.findOne(user.id)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id)
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findOne(id)
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Patch('@me')
+  updateMe(
+    @ReqUser() user: users,
+    @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
+  ) {
+    return this.userService.update(user.id, updateUserDto)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto)
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
+  ) {
+    return this.userService.update(id, updateUserDto)
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Delete('@me')
+  deleteMe(@ReqUser() user: users,) {
+    return this.userService.delete(user.id)
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Delete(':id')
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.delete(id)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Get('profile_img/@me')
+  downloadImage(@ReqUser() user: users, @Res() res: Response) {
+    return this.userService.findImg(user, res)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Patch('profile_img/@me')
+  @UseInterceptors(FileInterceptor('image'))
+  uploadImage(@ReqUser() user: users, @UploadedFile() image: File) {
+    return this.userService.updateImg(image, user)
+  }  
 }
