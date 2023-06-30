@@ -70,16 +70,6 @@ export class UserService {
     })
   }
 
-  async delete(id: number) {
-    return this.performUserOperation('deletar', async () => {
-      return this.prisma.users.delete({ where: { id },
-        select: {
-          id: true,
-        }
-      })
-    })
-  }
-  
   async updateImg(image: File, user: users) {
     const { id } = user;
     const filename = await this.imageUtil.save(image, id, 'user');
@@ -90,6 +80,16 @@ export class UserService {
         where: { id: user.id },
         data: userUpdate,
         select: this.selectColumns
+      })
+    })
+  }
+
+  async delete(id: number) {
+    return this.performUserOperation('deletar', async () => {
+      return this.prisma.users.delete({ where: { id },
+        select: {
+          id: true,
+        }
       })
     })
   }

@@ -42,6 +42,12 @@ export class PropertyService {
     return null
   }
 
+  async saveImg(image: File, id: number) {
+    const filename = await this.imageUtil.save(image, id, 'property')
+
+    return filename
+  }
+
   findAll() {
     return this.performUserOperation('receber', async () => {
       return this.prisma.property.findMany()
@@ -108,12 +114,6 @@ export class PropertyService {
         }
       })
     })  
-  }
-
-  async saveImg(image: File, id: number) {
-    const filename = await this.imageUtil.save(image, id, 'property')
-
-    return filename
   }
 
   private async performUserOperation(action: string, operation: () => Promise<any>) {
