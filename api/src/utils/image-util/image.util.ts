@@ -1,13 +1,10 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { randomUUID } from "crypto";
-import { Response } from "express";
-import { createWriteStream } from "fs";
-import { readdir, unlink, ensureDir, readFile } from "fs-extra";
+import { Injectable } from "@nestjs/common";
+import { readdir, unlink, readFile } from "fs-extra";
 import { File } from 'multer';
-import { extname } from "path";
 import { FilesDestinationConstants } from "src/constants/files-destination.constants";
 import { ImageSaveStrategy } from "src/interfaces/ImageSaveStrategy";
 import { DefaultImageSaveStrategy } from "./strategies/default-image-save.strategy";
+import * as path from 'path'
 
 @Injectable()
 export class ImageUtil {
@@ -28,7 +25,7 @@ export class ImageUtil {
 
   async get(imgName: string, lastDir: string) {
     try {
-      const dir = `${this.rootDirectory}/${lastDir}/${imgName}`
+      const dir = path.join(this.rootDirectory, lastDir, imgName)
       const buffer = await readFile(dir)
 
       return Buffer.from(buffer)
@@ -37,13 +34,17 @@ export class ImageUtil {
     }
   }
 
-  async deleteImage(dir: string, id: number) {
-    const files = await readdir(dir)
+  async deleteImage(dir: string, id: number): Promise<void> {
+    try {
+      const files = await readdir(dir)
+      const filesToDelete = files.filter(image => image.includes(`id=${id}`))
 
-    for (const image of files) {
-      console.log(image)
-      if (image.includes(`id=${id}`))
-        await unlink (`${dir}/${image}`)
+      for (const image of filesToDelete) {
+        const imagePath = path.join(dir, image)
+        await unlink(imagePath)
+      }
+    } catch (error) {
+      console.error('Error deleting images:', error)
     }
   }
 } 

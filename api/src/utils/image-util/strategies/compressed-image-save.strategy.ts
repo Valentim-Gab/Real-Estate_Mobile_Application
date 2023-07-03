@@ -6,7 +6,6 @@ import { ensureDir } from "fs-extra";
 import { File } from 'multer';
 import { extname } from "path";
 import { ImageUtil } from "../image.util";
-import { promisify } from "util";
 import { exec } from "child_process";
 
 
@@ -23,17 +22,16 @@ export class CompressedImageSaveStrategy implements ImageSaveStrategy {
       const filename = multipartFile.originalname
       const fileExternsion = extname(filename)
       const uuid = randomUUID()
-
-      this.imageUtil.deleteImage(dir, id)
-
       const newFileName = `id=${id}-${lastDir}=${uuid}${fileExternsion}`
+
+      this.imageUtil.deleteImage(dir, id)      
       await ensureDir(dir)
-      const fileAbsolutePath = `${dir}/${newFileName}`
       
-      const writeStream = createWriteStream(fileAbsolutePath)
+      const writeStream = createWriteStream(`${dir}/${newFileName}`)
+      
       writeStream.write(multipartFile.buffer)
       writeStream.end()
-      this.compressImage(fileAbsolutePath)
+      this.compressImage(`${dir}/${newFileName}`)
 
       return newFileName
     } catch (error) {
@@ -43,11 +41,19 @@ export class CompressedImageSaveStrategy implements ImageSaveStrategy {
 
   async compressImage(imagePath: string): Promise<void> {
     try {
-      const rootDirectory = 'src/main/java/site/my/planet/util/python/dist'
-      const execPromise = promisify(exec)
-      await execPromise(`${rootDirectory}/compressImage.exe ${imagePath}`)
+      const rootDirectory = 'src\\utils\\python\\dist'
+      const command = `${rootDirectory}\\compressImage.exe ${imagePath}`
+  
+      await new Promise<void>((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+          if (error)
+            reject(new Error('Erro ao comprimir a imagem.'))
+          else
+            resolve()
+        })
+      })
     } catch (error) {
-      throw new Error('Erro ao comprimir a imagem.')
+      throw error
     }
   }
 }

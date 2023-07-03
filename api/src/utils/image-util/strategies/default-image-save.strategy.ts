@@ -22,13 +22,13 @@ export class DefaultImageSaveStrategy implements ImageSaveStrategy {
       const filename = multipartFile.originalname
       const fileExternsion = extname(filename)
       const uuid = randomUUID()
-
-      this.imageUtil.deleteImage(dir, id)
-
       const newFileName = `id=${id}-${lastDir}=${uuid}${fileExternsion}`
+
+      this.imageUtil.deleteImage(dir, id)      
       await ensureDir(dir)
       
       const writeStream = createWriteStream(`${dir}/${newFileName}`)
+      
       writeStream.write(multipartFile.buffer)
       writeStream.end()
 
