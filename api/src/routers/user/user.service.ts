@@ -5,8 +5,9 @@ import { PrismaService } from 'nestjs-prisma'
 import { BCryptService } from 'src/security/private/bcrypt.service'
 import { Prisma, users } from '@prisma/client'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
-import { ImageUtil } from 'src/utils/image.util'
+import { ImageUtil } from 'src/utils/image-util/image.util'
 import { Response } from 'express'
+import { CompressedImageSaveStrategy } from 'src/utils/image-util/strategies/compressed-image-save.strategy'
 
 @Injectable()
 export class UserService {
@@ -72,6 +73,12 @@ export class UserService {
 
   async updateImg(image: File, user: users) {
     const { id } = user;
+
+    if (image.size > 2_000_000) {
+      const strategy = new CompressedImageSaveStrategy(this.imageUtil)
+      this.imageUtil.setSaveStrategy(strategy)
+    }
+      
     const filename = await this.imageUtil.save(image, id, 'user');
     const userUpdate = { 'img': filename }
 
