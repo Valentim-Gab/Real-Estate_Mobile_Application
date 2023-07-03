@@ -6,6 +6,8 @@ import { UpdatePropertyDto } from './dto/update-property.dto'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
 import { ImageUtil } from 'src/utils/image-util/image.util'
 import { Response } from 'express'
+import { CompressedImageSaveStrategy } from 'src/utils/image-util/strategies/compressed-image-save.strategy'
+import { DefaultImageSaveStrategy } from 'src/utils/image-util/strategies/default-image-save.strategy'
 
 @Injectable()
 export class PropertyService {
@@ -32,6 +34,13 @@ export class PropertyService {
     });
 
     if (newProperty.id && image) {
+      const strategy =
+      image.size > 1_000_000
+        ? new CompressedImageSaveStrategy(this.imageUtil)
+        : new DefaultImageSaveStrategy(this.imageUtil)
+
+      this.imageUtil.setSaveStrategy(strategy)
+
       filename = await this.saveImg(image, newProperty.id)
 
       if (filename) {
@@ -82,8 +91,16 @@ export class PropertyService {
   async update(id: number, updatePropertyDto: UpdatePropertyDto, image: File) {
     const { user, ...propertyData } = updatePropertyDto
 
-    if (image)
+    if (image) {
+      const strategy =
+      image.size > 1_000_000
+        ? new CompressedImageSaveStrategy(this.imageUtil)
+        : new DefaultImageSaveStrategy(this.imageUtil)
+
+      this.imageUtil.setSaveStrategy(strategy)
+      
       propertyData.img = await this.saveImg(image, id)
+    }
 
     return this.performUserOperation('atualizar', async () => {
       return this.prisma.property.update({

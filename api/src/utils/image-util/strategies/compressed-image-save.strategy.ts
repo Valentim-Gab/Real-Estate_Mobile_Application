@@ -15,7 +15,6 @@ export class CompressedImageSaveStrategy implements ImageSaveStrategy {
   constructor(private imageUtil: ImageUtil) {}
 
   async save(multipartFile: File, id: number, lastDir: string): Promise<string> {
-    console.log('Comprimir imagem')
     const dir = `${this.rootDirectory}/${lastDir}`
 
     try {
