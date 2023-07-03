@@ -3,7 +3,7 @@ import { UserService } from './user.service'
 import { UserController } from './user.controller'
 import { PrismaService } from 'nestjs-prisma'
 import { BCryptService } from 'src/security/private/bcrypt.service'
-import { ImageUtil } from 'src/utils/image.util'
+import { ImageUtil } from 'src/utils/image-util/image.util'
 
 @Module({
   controllers: [UserController],

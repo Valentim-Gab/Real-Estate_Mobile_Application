@@ -4,7 +4,7 @@ import { PrismaService } from 'nestjs-prisma'
 import { CreatePropertyDto } from './dto/create-property.dto'
 import { UpdatePropertyDto } from './dto/update-property.dto'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
-import { ImageUtil } from 'src/utils/image.util'
+import { ImageUtil } from 'src/utils/image-util/image.util'
 import { Response } from 'express'
 
 @Injectable()
