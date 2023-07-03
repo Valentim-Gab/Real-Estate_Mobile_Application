@@ -56,6 +56,13 @@ export class PropertyController {
     return this.propertyService.findOne(id)
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
+  @Get('main_img/:img')
+  downloadImage(@Param('img') img: string, @Res() res: Response) {
+    return this.propertyService.findImg(img, res)
+  }
+
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(
@@ -71,12 +78,5 @@ export class PropertyController {
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.propertyService.delete(id)
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User, Role.Admin)
-  @Get('main_img/:img')
-  downloadImage(@Param('img') img: string, @Res() res: Response) {
-    return this.propertyService.findImg(img, res)
   }
 }

@@ -4,7 +4,7 @@ import { PrismaService } from 'nestjs-prisma'
 import { CreatePropertyDto } from './dto/create-property.dto'
 import { UpdatePropertyDto } from './dto/update-property.dto'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
-import { ImageUtil } from 'src/utils/image.util'
+import { ImageUtil } from 'src/utils/image-util/image.util'
 import { Response } from 'express'
 
 @Injectable()
@@ -40,6 +40,12 @@ export class PropertyService {
     }
 
     return null
+  }
+
+  async saveImg(image: File, id: number) {
+    const filename = await this.imageUtil.save(image, id, 'property')
+
+    return filename
   }
 
   findAll() {
@@ -108,12 +114,6 @@ export class PropertyService {
         }
       })
     })  
-  }
-
-  async saveImg(image: File, id: number) {
-    const filename = await this.imageUtil.save(image, id, 'property')
-
-    return filename
   }
 
   private async performUserOperation(action: string, operation: () => Promise<any>) {
