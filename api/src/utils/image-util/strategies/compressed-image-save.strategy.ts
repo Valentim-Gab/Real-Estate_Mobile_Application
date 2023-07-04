@@ -7,8 +7,9 @@ import { File } from 'multer';
 import { extname } from "path";
 import { ImageUtil } from "../image.util";
 import { exec } from "child_process";
+import { Injectable } from "@nestjs/common";
 
-
+@Injectable()
 export class CompressedImageSaveStrategy implements ImageSaveStrategy {
   private readonly rootDirectory = FilesDestinationConstants.rootDirectory
   
