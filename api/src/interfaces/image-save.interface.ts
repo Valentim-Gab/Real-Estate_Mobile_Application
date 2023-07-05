@@ -1,5 +1,5 @@
 import { File } from 'multer';
 
-export interface ImageSaveStrategy {
+export interface ImageSave {
   save(multipartFile: File, id: number, lastDir: string): Promise<string>
 }
