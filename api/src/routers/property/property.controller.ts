@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Patch,
   Param,
   Delete,
@@ -20,13 +19,13 @@ import { UpdatePropertyDto } from './dto/update-property.dto'
 import { JwtAuthGuard } from 'src/security/guards/jwt-auth.guard'
 import { ReqUser } from 'src/decorators/req-user.decorator'
 import { users } from '@prisma/client'
-import { ValidationPipe } from 'src/pipes/validation.pipe'
 import { Role } from 'src/enums/Role'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Roles } from 'src/decorators/roles.decorator'
 import { RolesGuard } from 'src/security/guards/roles.guard'
 import { Response, Request } from 'express'
 import { File } from 'multer';
+import { PropertyGuard } from 'src/security/guards/property.guard'
 
 @Controller('property')
 export class PropertyController {
@@ -75,8 +74,9 @@ export class PropertyController {
     return this.propertyService.update(id, updatePropertyDto, image)
   }
 
+  @UseGuards(JwtAuthGuard, PropertyGuard)
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseIntPipe) id: number) {
     return this.propertyService.delete(id)
   }
 }
