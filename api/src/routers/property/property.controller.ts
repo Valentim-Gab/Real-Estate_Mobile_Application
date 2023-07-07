@@ -64,8 +64,13 @@ export class PropertyController {
   }
 
   @Patch(':id')
+  update(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) updatePropertyDto: UpdatePropertyDto) {
+    return this.propertyService.update(id, updatePropertyDto, null)
+  }
+
+  @Patch(':id/file')
   @UseInterceptors(FileInterceptor('image'))
-  update(
+  updateWithFile(
     @Param('id', ParseIntPipe) id: number,
     @Req() request: Request,
     @UploadedFile(ParseFilePipe) image: File

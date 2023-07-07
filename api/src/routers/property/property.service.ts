@@ -90,6 +90,7 @@ export class PropertyService {
 
   async update(id: number, updatePropertyDto: UpdatePropertyDto, image: File) {
     const { user, ...propertyData } = updatePropertyDto
+    const { img, ...propertyNoFileData } = propertyData
 
     if (image) {
       const strategy =
@@ -105,7 +106,7 @@ export class PropertyService {
     return this.performUserOperation('atualizar', async () => {
       return this.prisma.property.update({
         where: { id },
-        data: propertyData,
+        data: (image) ? propertyData : propertyNoFileData,
       })
     })
   }
