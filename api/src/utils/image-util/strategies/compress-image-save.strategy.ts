@@ -1,5 +1,3 @@
-import { FilesDestinationConstants } from "src/constants/files-destination.constants";
-import { ImageSaveStrategy } from "src/interfaces/ImageSaveStrategy";
 import { randomUUID } from "crypto";
 import { createWriteStream } from "fs";
 import { ensureDir } from "fs-extra";
@@ -7,10 +5,13 @@ import { File } from 'multer';
 import { extname } from "path";
 import { ImageUtil } from "../image.util";
 import { exec } from "child_process";
+import { Injectable } from "@nestjs/common";
+import { FileConstants } from "src/constants/FileConstants";
+import { ImageSave } from "src/interfaces/image-save.interface";
 
-
-export class CompressedImageSaveStrategy implements ImageSaveStrategy {
-  private readonly rootDirectory = FilesDestinationConstants.rootDirectory
+@Injectable()
+export class CompressImageSaveStrategy implements ImageSave {
+  private readonly rootDirectory = FileConstants.rootDirectory
   
   constructor(private imageUtil: ImageUtil) {}
 

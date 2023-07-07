@@ -1,21 +1,21 @@
 import { Injectable } from "@nestjs/common";
 import { readdir, unlink, readFile } from "fs-extra";
 import { File } from 'multer';
-import { FilesDestinationConstants } from "src/constants/files-destination.constants";
-import { ImageSaveStrategy } from "src/interfaces/ImageSaveStrategy";
 import { DefaultImageSaveStrategy } from "./strategies/default-image-save.strategy";
 import * as path from 'path'
+import { ImageSave } from "src/interfaces/image-save.interface";
+import { FileConstants } from "src/constants/FileConstants";
 
 @Injectable()
 export class ImageUtil {
-  private readonly rootDirectory = FilesDestinationConstants.rootDirectory
-  private saveStrategy: ImageSaveStrategy
+  private readonly rootDirectory = FileConstants.rootDirectory
+  private saveStrategy: ImageSave
 
   constructor() {
     this.saveStrategy = new DefaultImageSaveStrategy(this)
   }
 
-  setSaveStrategy(strategy: ImageSaveStrategy) {
+  setSaveStrategy(strategy: ImageSave) {
     this.saveStrategy = strategy
   }
 

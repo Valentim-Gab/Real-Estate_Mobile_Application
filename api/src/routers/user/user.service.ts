@@ -7,8 +7,8 @@ import { Prisma, users } from '@prisma/client'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
 import { ImageUtil } from 'src/utils/image-util/image.util'
 import { Response } from 'express'
-import { CompressedImageSaveStrategy } from 'src/utils/image-util/strategies/compressed-image-save.strategy'
 import { DefaultImageSaveStrategy } from 'src/utils/image-util/strategies/default-image-save.strategy'
+import { CompressImageSaveStrategy } from 'src/utils/image-util/strategies/compress-image-save.strategy'
 
 @Injectable()
 export class UserService {
@@ -102,7 +102,7 @@ export class UserService {
     const { id } = user
     const strategy =
       image.size > 1_000_000
-        ? new CompressedImageSaveStrategy(this.imageUtil)
+        ? new CompressImageSaveStrategy(this.imageUtil)
         : new DefaultImageSaveStrategy(this.imageUtil)
 
     this.imageUtil.setSaveStrategy(strategy)

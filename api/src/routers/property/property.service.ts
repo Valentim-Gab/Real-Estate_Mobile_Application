@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { Prisma, property } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from 'nestjs-prisma'
 import { CreatePropertyDto } from './dto/create-property.dto'
 import { UpdatePropertyDto } from './dto/update-property.dto'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
 import { ImageUtil } from 'src/utils/image-util/image.util'
 import { Response } from 'express'
-import { CompressedImageSaveStrategy } from 'src/utils/image-util/strategies/compressed-image-save.strategy'
+import { CompressImageSaveStrategy } from 'src/utils/image-util/strategies/compress-image-save.strategy'
 import { DefaultImageSaveStrategy } from 'src/utils/image-util/strategies/default-image-save.strategy'
 
 @Injectable()
@@ -36,7 +36,7 @@ export class PropertyService {
     if (newProperty.id && image) {
       const strategy =
       image.size > 1_000_000
-        ? new CompressedImageSaveStrategy(this.imageUtil)
+        ? new CompressImageSaveStrategy(this.imageUtil)
         : new DefaultImageSaveStrategy(this.imageUtil)
 
       this.imageUtil.setSaveStrategy(strategy)
@@ -95,7 +95,7 @@ export class PropertyService {
     if (image) {
       const strategy =
       image.size > 1_000_000
-        ? new CompressedImageSaveStrategy(this.imageUtil)
+        ? new CompressImageSaveStrategy(this.imageUtil)
         : new DefaultImageSaveStrategy(this.imageUtil)
 
       this.imageUtil.setSaveStrategy(strategy)

@@ -1,3 +1,3 @@
-export const FilesDestinationConstants = {
+export const FileConstants = {
   rootDirectory: 'src/resources/static',
 }
