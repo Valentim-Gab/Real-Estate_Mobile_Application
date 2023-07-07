@@ -12,6 +12,8 @@ import {
   Res,
   ParseFilePipe,
   Req,
+  Body,
+  ValidationPipe,
 } from '@nestjs/common'
 import { PropertyService } from './property.service'
 import { CreatePropertyDto } from './dto/create-property.dto'
