@@ -1,11 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { Prisma, property } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from 'nestjs-prisma'
 import { CreatePropertyDto } from './dto/create-property.dto'
 import { UpdatePropertyDto } from './dto/update-property.dto'
 import { ErrorConstants } from 'src/constants/ErrorConstants'
 import { ImageUtil } from 'src/utils/image-util/image.util'
 import { Response } from 'express'
+import { CompressImageSaveStrategy } from 'src/utils/image-util/strategies/compress-image-save.strategy'
+import { DefaultImageSaveStrategy } from 'src/utils/image-util/strategies/default-image-save.strategy'
 
 @Injectable()
 export class PropertyService {
@@ -32,6 +34,13 @@ export class PropertyService {
     });
 
     if (newProperty.id && image) {
+      const strategy =
+      image.size > 1_000_000
+        ? new CompressImageSaveStrategy(this.imageUtil)
+        : new DefaultImageSaveStrategy(this.imageUtil)
+
+      this.imageUtil.setSaveStrategy(strategy)
+
       filename = await this.saveImg(image, newProperty.id)
 
       if (filename) {
@@ -81,14 +90,23 @@ export class PropertyService {
 
   async update(id: number, updatePropertyDto: UpdatePropertyDto, image: File) {
     const { user, ...propertyData } = updatePropertyDto
+    const { img, ...propertyNoFileData } = propertyData
 
-    if (image)
+    if (image) {
+      const strategy =
+      image.size > 1_000_000
+        ? new CompressImageSaveStrategy(this.imageUtil)
+        : new DefaultImageSaveStrategy(this.imageUtil)
+
+      this.imageUtil.setSaveStrategy(strategy)
+      
       propertyData.img = await this.saveImg(image, id)
+    }
 
     return this.performUserOperation('atualizar', async () => {
       return this.prisma.property.update({
         where: { id },
-        data: propertyData,
+        data: (image) ? propertyData : propertyNoFileData,
       })
     })
   }

@@ -1,21 +1,20 @@
-import { FilesDestinationConstants } from "src/constants/files-destination.constants";
-import { ImageSaveStrategy } from "src/interfaces/ImageSaveStrategy";
 import { Injectable } from "@nestjs/common";
 import { randomUUID } from "crypto";
 import { createWriteStream } from "fs";
 import { ensureDir } from "fs-extra";
 import { File } from 'multer';
 import { extname } from "path";
+import { FileConstants } from "src/constants/FileConstants";
+import { ImageSave } from "src/interfaces/image-save.interface";
 import { ImageUtil } from "../image.util";
 
 @Injectable()
-export class DefaultImageSaveStrategy implements ImageSaveStrategy {
-  private readonly rootDirectory = FilesDestinationConstants.rootDirectory
+export class DefaultImageSaveStrategy implements ImageSave {
+  private readonly rootDirectory = FileConstants.rootDirectory
   
   constructor(private imageUtil: ImageUtil) {}
 
   async save(multipartFile: File, id: number, lastDir: string): Promise<string> {
-    console.log('Não comprimir imagem')
     const dir = `${this.rootDirectory}/${lastDir}`
 
     try {
