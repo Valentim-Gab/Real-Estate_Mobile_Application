@@ -53,8 +53,6 @@ class AppWidget extends StatelessWidget {
                     } else if (snapshot.hasData) {
                       bool? isDarkTheme = snapshot.data;
 
-                      print(isDarkTheme);
-
                       return MaterialApp(
                         theme: ThemeData(
                             primarySwatch: AppColors.primaryMaterialColor,
