@@ -41,17 +41,22 @@ export class PropertyController {
     return this.propertyService.create(createPropertyDto, image)
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @Get()
   findAll() {
     return this.propertyService.findAll()
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
   @Get('@me')
   findAllMe(@ReqUser() user: users) {
     return this.propertyService.findAllMe(user.id)
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.propertyService.findOne(id)
@@ -64,11 +69,15 @@ export class PropertyController {
     return this.propertyService.findImg(img, res)
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) updatePropertyDto: UpdatePropertyDto) {
     return this.propertyService.update(id, updatePropertyDto, null)
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
   @Patch(':id/file')
   @UseInterceptors(FileInterceptor('image'))
   updateWithFile(
@@ -81,7 +90,8 @@ export class PropertyController {
     return this.propertyService.update(id, updatePropertyDto, image)
   }
 
-  @UseGuards(JwtAuthGuard, PropertyGuard)
+  @UseGuards(JwtAuthGuard, PropertyGuard, RolesGuard)
+  @Roles(Role.User, Role.Admin)
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.propertyService.delete(id)
